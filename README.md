@@ -1,71 +1,44 @@
 # NitroSpike: Nitrosative Susceptibility Mapping of Coronavirus Spike Proteins
 
 ## Overview
+NitroSpike is a computational pipeline for analyzing coronavirus spike proteins and identifying nitrosative stress–susceptible residues.  
+It integrates sequence analysis, structural features, and a biologically informed Nitrosative Susceptibility Index (NSI) to rank candidate sites.
 
-NitroSpike is a computational framework for identifying and prioritizing nitrosative stress–susceptible residues in coronavirus spike proteins. The pipeline integrates sequence alignment, structural feature extraction, and a biologically grounded scoring model to compute a Nitrosative Susceptibility Index (NSI).
+The repository also reproduces all figures (Figure 2–5) from the study.
 
 ---
 
-## Pipeline Structure
-The workflow is organized into sequential scripts:
+## Workflow
+### 1. Data Preparation
+- `01_check_and_combine_raw_fastas`  
+  → FASTA quality check and inventory  
+- `02_combine_fastafiles`  
+  → combine all sequences into a single FASTA  
 
-### 01 – FASTA Curation and Alignment (ML01)
-* Cleans raw spike protein sequences
-* Removes low-quality sequences (>1 percent unknown residues)
-* Removes exact duplicates
-* Performs multiple sequence alignment (MAFFT)
-* Converts alignment into Wuhan-Hu-1 coordinate space
-
-### 02 – Target Residue Extraction (ML02)
-* Identifies biologically relevant residues:
-  * Cysteine (S-nitrosylation)
-  * Tyrosine (nitration)
-* Extracts residue-level matrix across variants
-* Generates conservation heatmaps and distribution plots
-
-### 03 – Structural Feature Engineering (ML03)
-* Maps residues onto protein structures (PDB)
-* Computes physicochemical and structural features:
-  * Solvent accessibility (SASA proxies)
-  * Electrostatic environment
-  * Local residue composition
-  * Evolutionary metrics (entropy, conservation)
-  * Spatial proximity (ACE2 interface, glycan shielding)
-* Outputs machine learning–ready feature matrix
-
-### 04 – NSI Scoring and Ranking (ML04)
-* Computes hierarchical Nitrosative Susceptibility Index (NSI)
-* Combines four biological components:
-  * Accessibility
-  * Chemistry
-  * Evolution
-  * Functional context
-* Produces:
-  * Variant-level rankings
-  * Residue-level rankings
-  * Feature ablation analysis
-  * Tree-based sensitivity analysis
-### 05 – Validation (ML05 & ML09)
-
-* ML05:
-  * Tests model generalization across variants
-  * Uses rule-derived susceptibility labels (consistency check)
-* ML09:
-  * Performs GroupKFold cross-validation
-  * Implements strict variant-level holdout (e.g., Delta, Omicron)
-  * Evaluates prediction of NSI scores (internal validation)
+---
 ---
 
-## Input Data Requirements
+### 2. Paper Figures
+- **Figure 2** → sequence structure and phylogeny  
+- **Figure 3** → mutation, entropy, and hotspot analysis  
+- **Figure 4** → variant-specific NSI and ΔNSI  
+- **Figure 5** → interface analysis and residue overlap  
+---
+### 3. ML Pipeline (Run in Order)
 
-### Primary Inputs
+- `ML01_curate_combined_fastafile`  
+  → sequence curation, MAFFT alignment, Wuhan reference mapping  
+- `ML02_extract_nitro_targets`  
+  → extract Cys and Tyr target residues  
+- `ML03_extract_structural_features`  
+  → generate structural and physicochemical feature matrix  
+- `ML04_generate_nsi_ranking_and_tree_sensitivity`  
+  → compute NSI and rank candidate sites  
+- `ML05_plot_validation`  
+  → cross-variant validation and consistency analysis  
 
-* Combined spike protein FASTA file
-  `02_CuratedRawData/combined_all_raw_sequences_curated.fasta`
-
-* Structural feature matrix (generated internally)
-  `09_AI_NitroSpike/structural_ai_feature_matrix.csv`
-
+## Inputs
+- Raw FASTA files:
 ### Structural Data
 
 * Protein structures (PDB) are automatically downloaded or cached
@@ -115,8 +88,3 @@ Key outputs include:
 * NSI-ranked candidate sites
 * Feature importance and ablation reports
 * Validation metrics and plots
-
-## Reproducibility
-* Fixed random seeds are used in ML models
-* Group-based splitting prevents data leakage across variants
-* All intermediate files are saved for traceability
